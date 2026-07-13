@@ -10,3 +10,4 @@ def verificar_lote(id_lote : str, base_referencia: list):
         raise ValueError(f"""Divergência: Lote não existe\n
                          Lote de id: {id_lote} não foi encontrado na base de referência
                          """)
+    return True
