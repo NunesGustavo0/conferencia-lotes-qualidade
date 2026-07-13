@@ -1,0 +1,68 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="altair" />
+          <option value="anyio" />
+          <option value="attrs" />
+          <option value="blinker" />
+          <option value="cachetools" />
+          <option value="certifi" />
+          <option value="charset-normalizer" />
+          <option value="click" />
+          <option value="entrypoints" />
+          <option value="et-xmlfile" />
+          <option value="gitdb" />
+          <option value="gitpython" />
+          <option value="h11" />
+          <option value="httptools" />
+          <option value="idna" />
+          <option value="itsdangerous" />
+          <option value="jinja2" />
+          <option value="jsonschema" />
+          <option value="jsonschema-specifications" />
+          <option value="markupsafe" />
+          <option value="narwhals" />
+          <option value="numpy" />
+          <option value="openpyxl" />
+          <option value="packaging" />
+          <option value="pandas" />
+          <option value="pillow" />
+          <option value="plotly" />
+          <option value="protobuf" />
+          <option value="pyarrow" />
+          <option value="pydeck" />
+          <option value="python-dateutil" />
+          <option value="python-multipart" />
+          <option value="referencing" />
+          <option value="requests" />
+          <option value="rpds-py" />
+          <option value="setuptools" />
+          <option value="six" />
+          <option value="smmap" />
+          <option value="starlette" />
+          <option value="streamlit" />
+          <option value="streamlit-mermaid" />
+          <option value="tabulate" />
+          <option value="tenacity" />
+          <option value="toml" />
+          <option value="toolz" />
+          <option value="typing-extensions" />
+          <option value="urllib3" />
+          <option value="uvicorn" />
+          <option value="watchdog" />
+          <option value="websockets" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyStubPackagesAdvertiser" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="pandas" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
