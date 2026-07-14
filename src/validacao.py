@@ -56,3 +56,36 @@ def validar_campos_obrigatorios_rn02(df, logger):
         msg = f"Falha na RN02: Valor ausente ou nulo encontrado na linha {linha_erro}, coluna '{coluna_erro}'."
         logger.error(msg)
         raise ValueError(msg)
+    
+def normalizar_status_rn05(status: str) -> str:
+    """
+    Normaliza os status específicos 'OK' e 'NOK' para o padrão do sistema.
+    """
+    mapeamento = {
+        "OK": "APROVADO",
+        "NOK": "REPROVADO"
+    }
+    # Retorna o valor mapeado; se não existir no dicionário, retorna o próprio status
+    return mapeamento.get(status, status)
+
+def verificar_status_rn04(status: str, logging) -> str:
+    """
+    Verifica se o status pertence ao escopo de regras de negócio.
+    Aciona a normalização caso identifique entradas 'OK' ou 'NOK'.
+    """
+    # Tratamento defensivo da entrada
+    status_tratado = str(status).strip().upper()
+
+    # Validação e acionamento da normalização
+    if status_tratado in {"OK", "NOK"}:
+        status_tratado = normalizar_status(status_tratado)
+
+    # Conjunto de referência (Operação O(1))
+    status_permitidos = {"APROVADO", "REPROVADO", "PENDENTE"}
+
+    if status_tratado not in status_permitidos:
+        msg = f"Erro de validação: Status '{status}' não reconhecido."
+        logging.error(msg)
+        raise ValueError(msg)
+
+    return status_tratado
