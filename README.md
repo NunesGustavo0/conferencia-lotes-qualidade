@@ -58,6 +58,15 @@ pytest test/ -v
 pytest --last-failed
 ```
 
+#### Rodando o bot
+
+```bash
+#Para rodar o bot, digite seguinte comando:
+python bot.py
+```
+
+
+
 ## Dependência e Instalação
 
 **Python:** Pode ser utilizado o Python entre 3.11 até 3.14
