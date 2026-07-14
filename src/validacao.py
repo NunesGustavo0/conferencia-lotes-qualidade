@@ -1,4 +1,5 @@
 import pandas as pd
+import logging
 
 def verificar_lote(id_lote : str, base_referencia: list) -> bool:
     """
@@ -20,7 +21,7 @@ def verificar_observacao_reprovado(status : str, observacao: str):
     """
 
     #Vamos padronizar o texto para evitar erros de CamelSensitive
-    status_normalizado = str(status).strip().upper if status else ""
+    status_normalizado = str(status).strip().upper() if status else ""
 
     if status_normalizado == 'REPROVADO':
     #Verificcando se o campo de observação está vazia
@@ -78,7 +79,7 @@ def verificar_status_rn04(status: str, logging) -> str:
 
     # Validação e acionamento da normalização
     if status_tratado in {"OK", "NOK"}:
-        status_tratado = normalizar_status(status_tratado)
+        status_tratado = normalizar_status_rn05(status_tratado)
 
     # Conjunto de referência (Operação O(1))
     status_permitidos = {"APROVADO", "REPROVADO", "PENDENTE"}

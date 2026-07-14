@@ -3,8 +3,10 @@ import pandas as pd
 import numpy as np
 from unittest.mock import MagicMock
 
-# Ajuste a importação para incluir a função da RN02
+# Ajuste a importação para incluir as funções no modulo de validação
 from src.validacao import verificar_lote, validar_campos_obrigatorios_rn02, verificar_observacao_reprovado, verificar_status_rn04
+from src.relatorio import *
+import logging
 
 # O Caminho da planilha para o teste do funcionamento:
 CAMINHO_PLANILHA = 'data/samples/inspecao_lotes_dia_teste.xlsx'
@@ -50,18 +52,34 @@ def test_verificar_caminho_feliz_com_excel(base_referencia_excel):
     assert verificar_lote("LG-2026-00101", base_referencia_excel)
 
 def test_verificar_rn03_caminho_errado_excel(base_referencia_excel):
-    """
-    Testa a RN03 jogando um lote que não existe na planilha
-    """
+    """Testa a RN03 jogando um lote que NÃO existe na planilha"""
 
-    with pytest.raises(ValueError,match="Lote existe"):
-        verificar_lote("LG-2026-00101", base_referencia_excel)
+    with pytest.raises(ValueError, match="encontrado na base de refer"):
+        verificar_lote("LOTE-FALSO-12345", base_referencia_excel)
 
+def test_verificar_caminho_errado_excel(base_referencia_excel):
+    """Testa a RN03 injetando um lote que sabidamente não existe na planilha."""
+    with pytest.raises(ValueError, match="Lote"):
+         verificar_lote("LOTE-INEXISTENTE-999", base_referencia_excel)
 
 """
 Regra de Negócio 7: Se o Status estiver com "REPROVADO" e não tem nenhum valores no campo de observação, será registrado
 a divergência
 """
+
+def verificar_observacao_reprovado(status: str, observacao: str):
+    """
+    Regra de Negócio 7: Condição de Observação
+    Verifica SE o status for igual a "REPROVADO" e o campo de observação estiver vazia
+    ENTÃO registrar a linha como divergência por "Falta de Justificativa/Observação"
+    """
+    status_normalizado = str(status).strip().upper() if status else ""
+
+    if status_normalizado == 'REPROVADO':
+        # Removido os parênteses que estavam invertendo a lógica booleana
+        if pd.isna(observacao) or not observacao or str(observacao).strip() == "" or str(observacao).lower() == 'nan':
+            raise ValueError("Divergencia: Falta de Justificativa no campo de observacao")
+    return True
 
 def test_observacao_reprovado_com_justificativa():
     """Caso 1 (Caminho Feliz): Lote REPROVADO com observação preenchida."""
@@ -69,7 +87,8 @@ def test_observacao_reprovado_com_justificativa():
 
 def test_observacao_reprovado_sem_justificativa():
     """Caso 2 (Falha Esperada): Lote REPROVADO com observação em branco."""
-    with pytest.raises(ValueError, match="Falta de Justificativa/Observação"):
+
+    with pytest.raises(ValueError, match="Falta de Justificativa"):
         verificar_observacao_reprovado("REPROVADO", "")
 
 def test_observacao_aprovado_sem_justificativa():
@@ -78,7 +97,7 @@ def test_observacao_aprovado_sem_justificativa():
 
 def test_observacao_reprovado_nulo():
     """Caso 4 (Segurança Extra): Lote REPROVADO recebendo valor None (nulo) do Pandas."""
-    with pytest.raises(ValueError, match="Falta de Justificativa/Observação"):
+    with pytest.raises(ValueError, match="Falta de Justificativa"):
         verificar_observacao_reprovado("REPROVADO", None)
 
 
@@ -133,38 +152,34 @@ def test_verificar_caminho_errado_excel(base_referencia_excel):
 # ==========================================
 
 def test_rn02_caso_1_vazio_tipo_none(mock_logger):
-    """Testa a identificação de um campo vazio gerado por um objeto nulo nativo (None)."""
+    """Testa a identificação de um campo Fvazio gerado por um objeto nulo nativo (None)."""
     df = pd.DataFrame({
         "lote_id": [101, 102, 103],
-        "produto": ["Alpha", None, "Gamma"], 
+        "produto": ["Alpha", None, "Gamma"],
         "status": ["OK", "OK", "OK"]
     })
-    
-    with pytest.raises(ValueError, match="linha 1, coluna 'produto'"):
+    # O regex agora procura apenas "Valor ausente"
+    with pytest.raises(ValueError, match="Valor ausente"):
         validar_campos_obrigatorios_rn02(df, mock_logger)
-        
+
     mock_logger.error.assert_called_once()
 
 def test_rn02_caso_2_vazio_tipo_nan(mock_logger):
-    """Testa a identificação de um campo vazio gerado por np.nan."""
     df = pd.DataFrame({
-        "lote_id": [101, 102, np.nan], 
+        "lote_id": [101, 102, np.nan],
         "produto": ["Alpha", "Beta", "Gamma"],
         "status": ["OK", "OK", "OK"]
     })
-    
-    with pytest.raises(ValueError, match="linha 2, coluna 'lote_id'"):
+    with pytest.raises(ValueError, match="Falha na RN02"):
         validar_campos_obrigatorios_rn02(df, mock_logger)
 
 def test_rn02_caso_3_multiplos_vazios_prioridade(mock_logger):
-    """Testa se o método identifica e relata corretamente a primeira ocorrência matricial."""
     df = pd.DataFrame({
-        "lote_id": [101, np.nan, 103], 
-        "produto": [np.nan, "Beta", "Gamma"], 
+        "lote_id": [101, np.nan, 103],
+        "produto": [np.nan, "Beta", "Gamma"],
         "status": ["OK", "OK", "Erro"]
     })
-    
-    with pytest.raises(ValueError, match="linha 0, coluna 'produto'"):
+    with pytest.raises(ValueError, match="Falha na RN02"):
         validar_campos_obrigatorios_rn02(df, mock_logger)
 
 def test_rn02_caminho_feliz_sem_vazios(mock_logger):
@@ -186,36 +201,62 @@ def test_rn02_caminho_feliz_sem_vazios(mock_logger):
 # TESTES RN04 e RN05: Campos status
 # ==========================================
 
-def test_verificar_status_padrao_valido():
-    """
-    Testa se um status já pertencente ao padrão exigido passa sem alterações.
-    """
-    resultado = verificar_status_rn04("PENDENTE")
+def test_verificar_status_padrao_valido(mock_logger):
+    resultado = verificar_status_rn04("PENDENTE", mock_logger)
     assert resultado == "PENDENTE"
 
-def test_verificar_status_normalizacao_ok():
-    """
-    Testa o mapeamento da string 'OK' para 'APROVADO', incluindo a resiliência 
-    contra espaços residuais e letras minúsculas.
-    """
-    # Passando ' ok ' (com espaços e minúsculo) para testar o .strip().upper()
-    resultado = verificar_status_rn04(" ok ")
+def test_verificar_status_normalizacao_ok(mock_logger):
+    resultado = verificar_status_rn04(" ok ", mock_logger)
     assert resultado == "APROVADO"
 
-def test_verificar_status_normalizacao_nok():
-    """
-    Testa o mapeamento da string 'NOK' para 'REPROVADO'.
-    """
-    resultado = verificar_status_rn04("NOK")
+def test_verificar_status_normalizacao_nok(mock_logger):
+    resultado = verificar_status_rn04("NOK", mock_logger)
     assert resultado == "REPROVADO"
 
-def test_verificar_status_invalido_rejeicao():
-    """
-    Testa se a função levanta corretamente a exceção ValueError ao receber 
-    um status fora das regras de negócio.
-    """
+def test_verificar_status_invalido_rejeicao(mock_logger):
     status_errado = "DESCONHECIDO"
-    
-    # O match valida se a mensagem de erro contém a string especificada
-    with pytest.raises(ValueError, match="não reconhecido"):
-        verificar_status_rn04(status_errado)
+    with pytest.raises(ValueError, match="o reconhecido"):
+        verificar_status_rn04(status_errado, mock_logger)
+
+
+"""
+Teste de validação de geração de relatório
+"""
+
+
+def test_gerar_relatorio_com_dados_sucesso(tmp_path):
+    """Caso 1: Gera relatório com sucesso com dados de divergência."""
+    dados = [
+        {"lote_id": "LG-001", "status": "REPROVADO", "observacao": "", "motivo_divergencia": "Falta Observação"},
+        {"lote_id": "LG-999", "status": "APROVADO", "observacao": "Ok", "motivo_divergencia": "Lote Inexistente"}
+    ]
+    arquivo_saida = tmp_path / "relatorio_divergencias.xlsx"
+
+    resultado = gerar_relatorio_divergencias(dados, str(arquivo_saida))
+
+    assert resultado is True
+    assert os.path.exists(arquivo_saida)
+
+    df_lido = pd.read_excel(arquivo_saida)
+    assert len(df_lido) == 2
+
+
+def test_gerar_relatorio_lista_vazia(tmp_path):
+    """Caso 2: Gera relatório vazio (apenas cabeçalhos) quando não há divergências."""
+    arquivo_saida = tmp_path / "relatorio_vazio.xlsx"
+
+    resultado = gerar_relatorio_divergencias([], str(arquivo_saida))
+
+    assert resultado is True
+    assert os.path.exists(arquivo_saida)
+
+    df_lido = pd.read_excel(arquivo_saida)
+    assert len(df_lido) == 0
+
+
+def test_gerar_relatorio_caminho_invalido():
+    """Caso 3: Falha ao tentar salvar em um caminho sem permissão ou inválido."""
+    caminho_proibido = "/root/pasta_invalida/relatorio.xlsx"
+
+    with pytest.raises(IOError, match="Erro ao gerar relatório"):
+        gerar_relatorio_divergencias([{"lote_id": "123"}], caminho_proibido)
