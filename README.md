@@ -43,6 +43,11 @@ Garante que todo o lote recusado pela produção possua uma justificativa raster
 registrará como um caso de divergência
 * 
 
+### Geração de Relatórios
+O bot consolida todas as divergências encontradas durante a validação das regras de negócio (Lotes Inexistentes, 
+Status divergentes, Falta de Observação, etc.) e exporta automaticamente um arquivo `.xlsx` estruturado, seguindo o 
+padrão da seção 12 do PDD.
+
 #### Rodando testes
 
 ```python
