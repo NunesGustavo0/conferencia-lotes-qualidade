@@ -1,5 +1,17 @@
 ## Regra de negócio Implementadas
 
+### RN01 - Validação de Estrutura (Padrão de Colunas)
+
+* **Idea:** Foi criada uma funcionalidade para atender a regra RN01, que realiza a verificação de conformidade do layout da planilha recebida para garantir que ela possua exatamente os campos esperados pelo sistema.
+* **Como funciona:** O sistema extrai o cabeçalho da planilha carregada e realiza uma operação de diferença de conjuntos (`set`) contra uma coleção de colunas de referência (`lote_id`, `produto`, `linha`, `turno`, `status`, `responsavel`, `data`, `observacao`). A verificação ocorre de forma bidirecional, identificando tanto colunas obrigatórias que estão ausentes quanto colunas intrusas (não padronizadas) que foram inseridas.
+* **Tratamento:** Se a estrutura diferir da referência, o sistema levanta uma exceção `ValueError` detalhando exatamente quais colunas faltam ou sobram, registra o evento via *logger* como erro crítico e interrompe o processamento do arquivo.
+
+### RN02 - Validação de Campos Obrigatórios (Valores Nulos)
+
+* **Idea:** Foi criada uma funcionalidade para atender a regra RN02, cujo objetivo é assegurar a completude dos dados processados, impedindo a ingestão de registros com informações essenciais em branco.
+* **Como funciona:** O sistema aplica uma máscara booleana vetorizada (`isna()`) sobre todo o *DataFrame* para rastrear a presença de valores nulos nativos (`None` ou `NaN`). Quando a máscara retorna verdadeiro, o algoritmo mapeia as coordenadas matriciais para isolar o índice exato da linha e o nome da coluna da ocorrência.
+* **Tratamento:** Ao detectar o primeiro campo vazio, o sistema levanta uma exceção `ValueError` contendo as coordenadas exatas da falha (ex: "linha 1, coluna 'produto'"), registra o evento no log de erros e aborta a validação.
+
 ### RN03 - Validação de Existência (Cruzamento com base_referência)
 
 * **Idea:** Foi criado uma funcionalidade para atender a regra RN03, que  realiza o cruzamento de dados para garantir 
