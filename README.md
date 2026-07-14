@@ -21,7 +21,7 @@ a integridade dos lotes recebidos na inspeção diária.
 * **Tratamento:** Se o lote informado não existe na base_referencial, o sistema levanta uma exceção **"Lote não existente"**,
 que classifica o registro como divergência. Somente tem a responsabilidade de iniciar a leitura a partir de linha correta
 
-#### Rodando em testes de RN0#
+#### Rodando em testes de RN03
 
 ```python
 # Para rodar todos os testes com saída detalhada
@@ -30,6 +30,14 @@ pytest test/ -v
 # Rodar apenas os testes que falharam na última execução
 pytest --last-failed
 ```
+
+### RN07 -  Condição de Campo de Observação
+Garante que todo o lote recusado pela produção possua uma justificativa rasterável.
+
+* **Ação:** O Sistema avalia se a coluna `status` de cada registro esteja REPROVADO
+* **Tratamento:** Caso a coluna `status` seja reprovado, ele verificará se possui o campo de observação, caso não tenha,
+registrará como um caso de divergência
+* 
 ## Dependência e Instalação
 
 **Python:** Pode ser utilizado o Python entre 3.11 até 3.14
