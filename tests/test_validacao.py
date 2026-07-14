@@ -4,7 +4,7 @@ import numpy as np
 from unittest.mock import MagicMock
 
 # Ajuste a importação para incluir a função da RN02
-from src.validacao import verificar_lote, validar_campos_obrigatorios_rn02, verificar_observacao_reprovado
+from src.validacao import verificar_lote, validar_campos_obrigatorios_rn02, verificar_observacao_reprovado, verificar_status_rn04
 
 # O Caminho da planilha para o teste do funcionamento:
 CAMINHO_PLANILHA = 'data/samples/inspecao_lotes_dia_teste.xlsx'
@@ -181,3 +181,41 @@ def test_rn02_caminho_feliz_sem_vazios(mock_logger):
         pytest.fail("ValueError foi levantado inesperadamente em um DataFrame sem valores nulos.")
     
     mock_logger.error.assert_not_called()
+
+# ==========================================
+# TESTES RN04 e RN05: Campos status
+# ==========================================
+
+def test_verificar_status_padrao_valido():
+    """
+    Testa se um status já pertencente ao padrão exigido passa sem alterações.
+    """
+    resultado = verificar_status_rn04("PENDENTE")
+    assert resultado == "PENDENTE"
+
+def test_verificar_status_normalizacao_ok():
+    """
+    Testa o mapeamento da string 'OK' para 'APROVADO', incluindo a resiliência 
+    contra espaços residuais e letras minúsculas.
+    """
+    # Passando ' ok ' (com espaços e minúsculo) para testar o .strip().upper()
+    resultado = verificar_status_rn04(" ok ")
+    assert resultado == "APROVADO"
+
+def test_verificar_status_normalizacao_nok():
+    """
+    Testa o mapeamento da string 'NOK' para 'REPROVADO'.
+    """
+    resultado = verificar_status_rn04("NOK")
+    assert resultado == "REPROVADO"
+
+def test_verificar_status_invalido_rejeicao():
+    """
+    Testa se a função levanta corretamente a exceção ValueError ao receber 
+    um status fora das regras de negócio.
+    """
+    status_errado = "DESCONHECIDO"
+    
+    # O match valida se a mensagem de erro contém a string especificada
+    with pytest.raises(ValueError, match="não reconhecido"):
+        verificar_status_rn04(status_errado)
