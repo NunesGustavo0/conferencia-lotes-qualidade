@@ -21,7 +21,29 @@ a integridade dos lotes recebidos na inspeção diária.
 * **Tratamento:** Se o lote informado não existe na base_referencial, o sistema levanta uma exceção **"Lote não existente"**,
 que classifica o registro como divergência. Somente tem a responsabilidade de iniciar a leitura a partir de linha correta
 
-#### Rodando em testes de RN03
+### RN04 - Validação e Normalização de Status
+
+* **Idea:** Foi criada uma funcionalidade para atender a regra RN04, cujo objetivo é assegurar que o status do lote inspecionado esteja contido no domínio de valores permitidos e padronizados pelo sistema.
+* **Como funciona:** O algoritmo intercepta o valor da coluna de status de cada registro, realiza uma limpeza de formatação (remoção de espaços em branco e conversão para maiúsculas) e aplica uma normalização preliminar (mapeando "OK" para "APROVADO" e "NOK" para "REPROVADO"). Após a normalização, o valor é validado contra um conjunto de referência de escopo fechado (`{"APROVADO", "REPROVADO", "PENDENTE"}`) utilizando busca em complexidade de tempo O(1).
+* **Tratamento:** Se o status recebido não for reconhecido e não puder ser normalizado, o sistema levanta uma exceção `ValueError` detalhando o erro e a linha correspondente, efetua o registro no *log* e interrompe o pipeline de processamento.
+
+---
+
+### RN05 - [Nome da Validação - Necessita Definição]
+
+* **Idea:** [Inserir o objetivo de negócio da regra. Exemplo: Assegurar a unicidade dos registros, impedindo a ingestão de lotes duplicados no mesmo turno.]
+* **Como funciona:** [Inserir a mecânica de software da regra. Exemplo: O sistema aplica o método `.duplicated()` sobre a coluna `lote_id`, retornando uma máscara booleana para mapear colisões de dados na planilha atual.]
+* **Tratamento:** [Inserir o comportamento de falha. Exemplo: Ao identificar a duplicidade, o sistema levanta uma exceção `ValueError` indicando as linhas conflitantes e aborta o processamento.]
+
+### RN07 -  Condição de Campo de Observação
+Garante que todo o lote recusado pela produção possua uma justificativa rasterável.
+
+* **Ação:** O Sistema avalia se a coluna `status` de cada registro esteja REPROVADO
+* **Tratamento:** Caso a coluna `status` seja reprovado, ele verificará se possui o campo de observação, caso não tenha,
+registrará como um caso de divergência
+* 
+
+#### Rodando testes
 
 ```python
 # Para rodar todos os testes com saída detalhada
@@ -31,13 +53,6 @@ pytest test/ -v
 pytest --last-failed
 ```
 
-### RN07 -  Condição de Campo de Observação
-Garante que todo o lote recusado pela produção possua uma justificativa rasterável.
-
-* **Ação:** O Sistema avalia se a coluna `status` de cada registro esteja REPROVADO
-* **Tratamento:** Caso a coluna `status` seja reprovado, ele verificará se possui o campo de observação, caso não tenha,
-registrará como um caso de divergência
-* 
 ## Dependência e Instalação
 
 **Python:** Pode ser utilizado o Python entre 3.11 até 3.14
