@@ -19,6 +19,8 @@ O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 - Cobertura de testes unitários para a RN07 no arquivo `tests/test_validacao.py`, incluindo validações de falsos positivos (lotes aprovados sem observação) e tratamento de valores nulos nativos.
 - Adição da fixture `df_inspecao_excel` no Pytest para carregar a aba `Inspecao_Dia` da planilha de testes via Pandas, garantindo que a RN07 seja validada contra dados reais (células em branco, `NaN` e strings vazias).
 - Código parcialmente integrado a biblioteca logging
+- Implementação da função `gerar_relatorio_divergencias` no módulo `src/validacao.py` utilizando `pandas` para exportar arquivos `.xlsx` (PDD v0.2 seção 12).
+- Criação de testes unitários validando 3 cenários distintos de exportação (caminho feliz, dados vazios e caminho de sistema inválido/restrito) utilizando a fixture `tmp_path` do Pytest.
 
 
 ### Quais são as dependências
