@@ -62,10 +62,11 @@ pytest --last-failed
 
 ```bash
 #Para rodar o bot, digite seguinte comando:
-python bot.py
+docker compose up
+
+# para caso você tenha rodado mais uma vez, execute seguinte comando para eliminar o cache: 
+docker compose run -rm bot
 ```
-
-
 
 ## Dependência e Instalação
 
