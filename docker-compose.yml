@@ -1,0 +1,16 @@
+version: '3.8'
+
+#Construindo o serviço:
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: ../../conferenciaGustavo/conferencia-lotes-qualidade/Dockerfile
+    container_name: conferencia_lotes_bot_docker
+    env_file: #Lendo o ambiente do arquivo local .env
+      - .env
+    volumes: # Mapeando a pasta de saída do container para a nossa máquina host
+      - ./data/output:/app/data/output
+    environment:
+      - TZ=America/Manaus # Definindo o fuso horário
