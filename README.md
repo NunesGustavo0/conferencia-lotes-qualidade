@@ -52,6 +52,13 @@ Bot de validação e conferência de lotes de qualidade, com geração automáti
 
 **Tratamento:** Caso o status seja `REPROVADO`, o sistema verifica se o campo de observação foi preenchido; caso não tenha, registra como um caso de divergência.
 
+### Geração de Relatórios
+O bot consolida todas as divergências encontradas durante a validação das regras de negócio (Lotes Inexistentes, 
+Status divergentes, Falta de Observação, etc.) e exporta automaticamente um arquivo `.xlsx` estruturado, seguindo o 
+padrão da seção 12 do PDD.
+
+#### Rodando testes
+
 ## Geração de Relatórios
 
 O bot consolida todas as divergências ocorridas durante a validação das regras de negócio (lotes inexistentes, status divergentes, falta de observação, etc.) e exporta automaticamente um arquivo `.xlsx` estruturado, seguindo o padrão da seção 12 do PDD.
