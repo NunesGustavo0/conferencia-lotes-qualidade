@@ -57,6 +57,11 @@ O bot consolida todas as divergências encontradas durante a validação das reg
 Status divergentes, Falta de Observação, etc.) e exporta automaticamente um arquivo `.xlsx` estruturado, seguindo o 
 padrão da seção 12 do PDD.
 
+### Geração de Relatórios
+O bot consolida todas as divergências encontradas durante a validação das regras de negócio (Lotes Inexistentes, 
+Status divergentes, Falta de Observação, etc.) e exporta automaticamente um arquivo `.xlsx` estruturado, seguindo o 
+padrão da seção 12 do PDD.
+
 #### Rodando testes
 
 ## Geração de Relatórios
@@ -84,14 +89,16 @@ pytest test/ -v
 pytest --last-failed
 ```
 
-## Rodando o bot
+#### Rodando o bot
 
 ```bash
-# Para rodar o bot, digite o seguinte comando:
-python bot.py
+#Para rodar o bot, digite seguinte comando:
+docker compose up
+
+# para caso você tenha rodado mais uma vez, execute seguinte comando para eliminar o cache: 
+docker compose run -rm bot
 ```
 
-## Dependências e Instalação
 
 **Python:** pode ser utilizado o Python entre as versões 3.11 e 3.14.
 

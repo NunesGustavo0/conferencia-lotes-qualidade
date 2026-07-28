@@ -1,0 +1,29 @@
+# Ambientes virtuais
+venv/
+.venv/
+env/
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos de ambiente e sensíveis locais
+.env
+
+# Logs locais
+*.log
+logs/
+
+# Git
+.git/
+.gitignore
+
+# Documentação (não é necessária em tempo de execução)
+docs/
+CHANGELOG.md
+README.md
+
+# Ignora saídas locais para não sobrescrever nada no container acidentalmente
+data/output/*

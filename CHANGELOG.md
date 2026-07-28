@@ -26,3 +26,9 @@ O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 ### Quais são as dependências
 - Inclusão das bibliotecas `pandas` e `openpyxl` para o processamento em lote da base referência contida na aba do Excel
 - Inclusão de bibliotecas `logging` para geração de logs de execução
+
+## [Unreleased] (ou [0.1.1])
+
+
+### Foram adicionados: 
+- Integração com docker
